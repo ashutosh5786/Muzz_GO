@@ -2,26 +2,30 @@ package main
 
 import (
 	"log"
+	"context"
 
 	"github.com/gofiber/fiber/v3"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 // Job struct to represent a job
 // TODO Needed to generate a unique jobId for each job. For now, we are using a simple int
 // TODO Needed to change the jobId to string and use UUID for unique jobId generated automatically
 type Job struct {
-	jobId int    `json:"jobId"`
-	job   string `json:"job"`
+	jobId int    `json:"jobId" bson:"jobId"`
+	job   string `json:"job" bson:"job"`
 }
 
 // JobList struct to represent a list of jobs. Making a Slice as it can grow in size depending upon the struct job which is declate above
-type JobList struct {
-	Jobs []Job `json:"jobs"`
-}
+// type JobList struct {
+// 	Jobs []Job `json:"jobs"`
+// }
 
-var jobList = JobList{
-	Jobs: []Job{},
-}
+// var jobList = JobList{
+// 	Jobs: []Job{},
+// }
 
 func main() {
 	// Initialize a new Fiber app

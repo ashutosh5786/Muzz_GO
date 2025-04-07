@@ -3,7 +3,7 @@
 *.dll
 *.so
 *.dylib
-
+.env
 # Test binary, build output
 *.test
 *.out
