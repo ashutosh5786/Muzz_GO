@@ -6,5 +6,5 @@ import (
 
 func main() {
 
-	fmt.Printf("Starting Server on localhost:8080\n")
+	fmt.Printf("Starting Server on http://localhost:8080\n")
 }
