@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -28,6 +29,11 @@ func main() {
 
 	// Set up a simple GET endpoint to return the job list TODO Needed to get the data from Any DB
 	app.Get("/job", func(c fiber.Ctx) error {
+		amount, checkpoint := c.Query("amount"), c.Query("checkpoint")
+
+		// REMOVE IT AFTER TESTING
+		log.Printf("Amount: %s, Checkpoint: %s", amount, checkpoint)
+
 		return c.JSON(jobList)
 	})
 
