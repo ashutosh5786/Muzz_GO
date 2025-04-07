@@ -6,6 +6,8 @@ import (
 )
 
 // Job struct to represent a job
+// TODO Needed to generate a unique jobId for each job. For now, we are using a simple int
+// TODO Needed to change the jobId to string and use UUID for unique jobId generated automatically
 type Job struct {
 	jobId int    `json:"jobId"`
 	job   string `json:"job"`
