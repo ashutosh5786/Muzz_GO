@@ -99,7 +99,7 @@ curl "http://localhost:8080/job?amount=3"
 
 - **Go**: Efficient for concurrent HTTP servers and aligns with Muzz's preferred language.
 
-- **MongoDB**: Provides persistent storage, native timestamp support for ordering, and simple querying.
+- **MongoDB**: Provides persistent storage, simple querying.
 
 - **UUIDs**: Ensures each job has a globally unique identifier.
 
