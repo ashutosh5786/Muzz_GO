@@ -1,10 +1,14 @@
 package main
 
 import (
-	"log"
 	"context"
+	"log"
+	"os"
+	
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/joho/godotenv"
+
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
@@ -28,6 +32,31 @@ type Job struct {
 // }
 
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	// Getting MonggDB connection string from the .env file
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		log.Fatal("MONGO_URI environment variable is not set")
+	}
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(options.Client().ApplyURI(mongoURI))
+	if err != nil {
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
+	}
+	// Ping the MongoDB server to check the connection
+	err = client.Ping(context.TODO(), readpref.Primary())
+	if err != nil {
+		log.Fatalf("Failed to ping MongoDB: %v", err)
+	}
+	log.Println("Connected to MongoDB")
+	
+
+
 	// Initialize a new Fiber app
 	app := fiber.New()
 
@@ -38,7 +67,8 @@ func main() {
 		// REMOVE IT AFTER TESTING
 		log.Printf("Amount: %s, Checkpoint: %s", amount, checkpoint)
 
-		return c.JSON(jobList)
+		// return c.JSON(jobList)
+		return c.SendString("Job Get API")
 	})
 
 	app.Post("/job", func(c fiber.Ctx) error {
