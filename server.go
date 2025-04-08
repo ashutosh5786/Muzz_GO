@@ -72,7 +72,7 @@ func main() {
 			if err != nil || parsed <= 0 {
 				return c.Status(400).SendString("Invalid amount parameter")
 			}
-			var limit := int64(parsed)
+			limit = int64(parsed)
 		}
 
 		// Base filter
