@@ -135,6 +135,6 @@ func main() {
 
 	})
 
-	// Start the server on port 80 make the docker compose to serve on port 8080 TODO Dont Forget about it in the end
-	log.Fatal(app.Listen(":80"))
+	// Start the server on port 8080 make the docker compose to serve on port 8080 TODO Dont Forget about it in the end
+	log.Fatal(app.Listen(":8080"))
 }
