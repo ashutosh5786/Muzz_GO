@@ -58,20 +58,21 @@ func main() {
 	app.Get("/job", func(c *fiber.Ctx) error {
 		amount, checkpoint := c.Query("amount"), c.Query("checkpoint")
 
-		jobCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		ctx := context.TODO()
+
+		jobCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
 			Keys: bson.D{{Key: "createdAt", Value: 1}},
 		})
 
 		// limit the number of jobs to return
-		limit := int64(10) // Default limit
-		ctx := context.TODO()
+		limit := int64(50) // Default limit
 
 		if amount != "" {
 			parsed, err := strconv.Atoi(amount)
 			if err != nil || parsed <= 0 {
 				return c.Status(400).SendString("Invalid amount parameter")
 			}
-			limit = int64(parsed)
+			var limit := int64(parsed)
 		}
 
 		// Base filter
