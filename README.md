@@ -1,75 +1,114 @@
-Muzz_GO
-Muzz_GO is a Go-based RESTful API for managing jobs, built using the Fiber web framework and MongoDB as the database. The application supports creating and retrieving jobs, with features like pagination and checkpoint-based filtering. It is containerized using Docker and can be deployed with Docker Compose.
+# HTTP Job Queue (Go + MongoDB)
 
-Features
-Create Jobs: Add new jobs with a unique jobId and a timestamp.
-Retrieve Jobs: Fetch jobs with optional pagination and checkpoint-based filtering.
-MongoDB Integration: Uses MongoDB for persistent storage.
-Dockerized: Easily deployable with Docker and Docker Compose.
-Installation
-Prerequisites
-Go (version 1.20 or later)
-Docker
-Docker Compose
-Steps to Run Locally
-Clone the Repository:
+This project is a simple, FIFO-compliant HTTP-based job queue implemented in **Go** with **MongoDB** as the persistent backend. It is containerized using Docker and supports checkpoint-based job fetching, making it suitable for distributed consumers.
 
-Set Up Environment Variables: Create a .env file in the root directory with the following content:
+---
 
-Run the Application with Docker Compose:
+## Features
 
-Access the Application:
+- Add jobs via `POST /job`
+- Retrieve jobs FIFO-style via `GET /job`
+- Supports checkpointing and pagination
+- Jobs are persisted in MongoDB
+- Lightweight and containerized (Docker-ready)
+- Designed for observability and extensibility
 
-API: http://localhost:8080
-MongoDB: mongodb://localhost:27017
-API Endpoints
+---
 
-1. Create a Job
-   Endpoint: POST /job
-   Description: Adds a new job to the database.
-   Request:
-   Response:
-2. Retrieve Jobs
-   Endpoint: GET /job
-   Description: Fetches jobs with optional pagination and checkpoint filtering.
-   Query Parameters:
-   amount (optional): Number of jobs to return (default: 50).
-   checkpoint (optional): Filters jobs created after the specified jobId.
-   Request:
-   Response:
-   Project Structure
-   Choices We Made and Why
-   Fiber Framework:
+## Requirements
 
-Chosen for its lightweight and high-performance nature, making it ideal for building RESTful APIs.
-MongoDB:
+- Go 1.20+
+- Docker & Docker Compose
+- MongoDB 5.0+
+---
 
-Selected for its flexibility and ability to handle unstructured data, which suits the job management use case.
-Docker and Docker Compose:
+## Installation & Setup
 
-Used to simplify deployment and ensure consistency across environments.
-Pagination and Checkpoint Filtering:
+1. **Clone the repo**:
+   ```bash
+   git clone https://github.com/ashutosh5786/Muzz_GO.git
+   cd Muzz_GO
+   ```
+2. **Create .env**:
 
-Implemented to handle large datasets efficiently and allow incremental data retrieval.
-Environment Variables:
+   ```bash
+   MONGO_URI=mongodb://mongo:27017
+   ```
 
-Used to manage sensitive configurations like the MongoDB connection string.
-Future Improvements
-Authentication and Authorization:
+   **Note**: It's already present in the Zip
 
-Add user authentication (e.g., JWT) to secure the API.
-Validation:
+3. **Run with Docker Compose**:
+   ```bash
+   docker-compose up --build
+   ```
+4. App will be available at: http://localhost:8080
+---
+## API Endpoints
 
-Implement stricter validation for input data to ensure data integrity.
-Error Handling:
+### POST /job
 
-Improve error messages and add structured logging for better debugging.
-Testing:
+Add a new job to the queue.
 
-Add unit tests and integration tests to ensure code reliability.
-Scalability:
+**Request Body (raw text or JSON):**<br>
 
-Use a load balancer and horizontal scaling to handle increased traffic.
-Monitoring:
+```bash
+curl -d "test" localhost:8080/job
+```
 
-Integrate monitoring tools like Prometheus and Grafana to track application performance.
+**Response**<br>
+
+```bash
+{
+  "message": "Job created successfully",
+  "jobId": "d3a76b6f-4b1b-4b1e-bc4b-2c4733b4a317"
+}
+```
+
+### GET /job
+
+Fetch job in FIFO order
+
+**Query Param**
+
+- `amount` (optional): max number of jobs (default: 50)
+- `checkpoint` (optional): return jobs **after** this jobId
+
+**Example**
+
+```bash
+curl "http://localhost:8080/job?amount=3"
+```
+
+**Response**
+
+```bash
+{
+  "jobs": [
+    {
+      "jobId": "abc123",
+      "job": "send_email"
+    },
+    {
+      "jobId": "abc124",
+      "job": "generate_invoice"
+    }
+  ]
+}
+```
+---
+## Design Choices
+
+- **Go**: Efficient for concurrent HTTP servers and aligns with Muzz's preferred language.
+
+- **MongoDB**: Provides persistent storage, native timestamp support for ordering, and simple querying.
+
+- **UUIDs**: Ensures each job has a globally unique identifier.
+
+- **Fiber Framework**: Lightweight and fast web framework for Go, inspired by Express.js.
+---
+
+## Future Development Ideas
+- Job deletion after processing
+- Job retries or dead-letter queues
+- Authentication & rate-limiting
+- Kafka or Redis stream adapter (swap MongoDB)
