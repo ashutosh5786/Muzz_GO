@@ -1,6 +1,6 @@
 # HTTP Job Queue (Go + MongoDB)
 
-This project is a simple, FIFO-compliant HTTP-based job queue implemented in **Go** with **MongoDB** as the persistent backend. It is containerized using Docker and supports checkpoint-based job fetching, making it suitable for distributed consumers.
+This project is a simple, FIFO-compliant HTTP-based job queue implemented in **Go** with **MongoDB** as the persistent backend. It is containerized using Docker and supports checkpoint-based job fetching.
 
 ---
 
@@ -8,10 +8,9 @@ This project is a simple, FIFO-compliant HTTP-based job queue implemented in **G
 
 - Add jobs via `POST /job`
 - Retrieve jobs FIFO-style via `GET /job`
-- Supports checkpointing and pagination
+- Supports checkpointing
 - Jobs are persisted in MongoDB
 - Lightweight and containerized (Docker-ready)
-- Designed for observability and extensibility
 
 ---
 

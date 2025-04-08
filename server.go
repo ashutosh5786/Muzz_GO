@@ -54,10 +54,18 @@ func main() {
 	}
 	log.Println("Connected to MongoDB")
 
+	// Create a new collection for jobs
 	jobCollection = client.Database("jobDB").Collection("jobs")
-	jobCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+
+	// Create an index on the createdAt field for efficient querying
+	_, err = jobCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys: bson.D{{Key: "createdAt", Value: 1}},
 	})
+	if err != nil {
+		log.Fatalf("Failed to create index on createdAt: %v", err)
+	}
+	log.Println("Index on createdAt created successfully")
+
 	// Initialize a new Fiber app
 	app := fiber.New()
 
@@ -106,6 +114,7 @@ func main() {
 			return c.Status(500).SendString("Error decoding jobs")
 		}
 
+		//Created new struct to mask the createdAt field
 		var resp []JobResponse
 		for _, job := range jobs {
 			resp = append(resp, JobResponse{
@@ -146,6 +155,6 @@ func main() {
 
 	})
 
-	// Start the server on port 8080 make the docker compose to serve on port 8080 TODO Dont Forget about it in the end
+	// Start the server on port 8080
 	log.Fatal(app.Listen(":8080"))
 }
