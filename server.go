@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -61,11 +62,50 @@ func main() {
 			Keys: bson.D{{Key: "createdAt", Value: 1}},
 		})
 
-		// REMOVE IT AFTER TESTING
-		log.Printf("Amount: %s, Checkpoint: %s", amount, checkpoint)
+		// limit the number of jobs to return
+		limit := int64(10) // Default limit
+		ctx := context.TODO()
 
-		// return c.JSON(jobList)
-		return c.SendString("Job Get API")
+		if amount != "" {
+			parsed, err := strconv.Atoi(amount)
+			if err != nil || parsed <= 0 {
+				return c.Status(400).SendString("Invalid amount parameter")
+			}
+			limit = int64(parsed)
+		}
+
+		// Base filter
+		filter := bson.M{}
+
+		// If checkpoint exists, find its createdAt
+		if checkpoint != "" {
+			var cpJob Job
+			err := jobCollection.FindOne(ctx, bson.M{"jobId": checkpoint}).Decode(&cpJob)
+			if err != nil {
+				return c.Status(400).SendString("Invalid checkpoint: jobId not found")
+			}
+			filter["createdAt"] = bson.M{"$gt": cpJob.CreatedAt}
+		}
+
+		// Run query
+		cursor, err := jobCollection.Find(ctx, filter, options.Find().
+			SetSort(bson.M{"createdAt": 1}).
+			SetLimit(limit))
+		if err != nil {
+			log.Printf("Mongo Find Error: %v", err)
+			return c.Status(500).SendString("Internal server error")
+		}
+
+		var jobs []Job
+		if err := cursor.All(ctx, &jobs); err != nil {
+			log.Printf("Cursor Decode Error: %v", err)
+			return c.Status(500).SendString("Error decoding jobs")
+		}
+
+		return c.JSON(fiber.Map{
+			"jobs": jobs,
+		})
+
 	})
 
 	app.Post("/job", func(c *fiber.Ctx) error {
