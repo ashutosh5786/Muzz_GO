@@ -60,7 +60,6 @@ func main() {
 	// Create an index on the createdAt field for efficient querying
 	_, err = jobCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
 		Keys: bson.M{"createdAt": 1},
-
 	})
 	if err != nil {
 		log.Fatalf("Failed to create index on createdAt: %v", err)
