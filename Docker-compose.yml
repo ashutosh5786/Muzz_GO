@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go_app
+    ports:
+      - "8080:8080" # Expose port 8080 for the Go app
+    env_file:
+      - .env # Load environment variables from the .env file
+    depends_on:
+      - mongodb # Ensure MongoDB starts before the app
+    restart: always
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017" # Expose MongoDB's default port
+    volumes:
+      - mongo_data:/data/db # Persist MongoDB data
+    restart: always
+
+volumes:
+  mongo_data:
