@@ -23,6 +23,11 @@ type Job struct {
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 
+type JobResponse struct {
+	JobId string `json:"jobId"`
+	Job   string `json:"job"`
+}
+
 var jobCollection *mongo.Collection
 
 func main() {
@@ -50,7 +55,9 @@ func main() {
 	log.Println("Connected to MongoDB")
 
 	jobCollection = client.Database("jobDB").Collection("jobs")
-
+	jobCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
+		Keys: bson.D{{Key: "createdAt", Value: 1}},
+	})
 	// Initialize a new Fiber app
 	app := fiber.New()
 
@@ -59,10 +66,6 @@ func main() {
 		amount, checkpoint := c.Query("amount"), c.Query("checkpoint")
 
 		ctx := context.TODO()
-
-		jobCollection.Indexes().CreateOne(ctx, mongo.IndexModel{
-			Keys: bson.D{{Key: "createdAt", Value: 1}},
-		})
 
 		// limit the number of jobs to return
 		limit := int64(50) // Default limit
@@ -103,8 +106,16 @@ func main() {
 			return c.Status(500).SendString("Error decoding jobs")
 		}
 
+		var resp []JobResponse
+		for _, job := range jobs {
+			resp = append(resp, JobResponse{
+				JobId: job.JobId,
+				Job:   job.Job,
+			})
+		}
+
 		return c.JSON(fiber.Map{
-			"jobs": jobs,
+			"jobs": resp,
 		})
 
 	})
