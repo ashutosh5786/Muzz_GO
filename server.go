@@ -59,13 +59,13 @@ func main() {
 
 	// Create an index on the createdAt field for efficient querying
 	_, err = jobCollection.Indexes().CreateOne(context.TODO(), mongo.IndexModel{
-		Keys: bson.D{{Key: "createdAt", Value: 1}},
+		Keys: bson.M{"createdAt": 1},
+
 	})
 	if err != nil {
 		log.Fatalf("Failed to create index on createdAt: %v", err)
 	}
 	log.Println("Index on createdAt created successfully")
-
 	// Initialize a new Fiber app
 	app := fiber.New()
 
